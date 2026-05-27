@@ -22,7 +22,7 @@ pydantic = [
 ]
 
 [tool.poetry]
-packages = [{ include = "squarecloud" }]
+packages = [{ from= "src", include = "squarecloud" }]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
