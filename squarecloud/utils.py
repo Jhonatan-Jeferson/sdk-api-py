@@ -1,6 +1,7 @@
 from typing import Any, Literal
 
 from squarecloud._internal.decorators import validate
+import base64
 
 
 class ConfigFile:
@@ -73,3 +74,5 @@ class ConfigFile:
         content = self.content()
         with open(f'./{path}/squarecloud.app', 'w', encoding='utf-8') as file:
             file.write(content)
+
+

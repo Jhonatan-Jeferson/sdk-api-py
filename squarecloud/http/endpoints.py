@@ -15,6 +15,14 @@ class Endpoint:
         'STOP': {'METHOD': 'POST', 'PATH': '/apps/{app_id}/stop'},
         'RESTART': {'METHOD': 'POST', 'PATH': '/apps/{app_id}/restart'},
         'SNAPSHOT': {'METHOD': 'POST', 'PATH': '/apps/{app_id}/snapshots'},
+        'RESTORE_APPLICATIONS_SNAPSHOT': {
+            'METHOD': 'POST',
+            'PATH': '/apps/{app_id}/snapshots/restore',
+        },
+        'RESTORE_DATABASE_SNAPSHOT': {
+            'METHOD': 'POST',
+            'PATH': '/databases/{app_id}/snapshots/restore',
+        },
         'COMMIT': {'METHOD': 'POST', 'PATH': '/apps/{app_id}/commit'},
         'DELETE_APP': {'METHOD': 'DELETE', 'PATH': '/apps/{app_id}'},
         'UPLOAD_APP': {'METHOD': 'POST', 'PATH': '/apps'},
@@ -60,6 +68,17 @@ class Endpoint:
         'ENVS_PUT': {'METHOD': 'PUT', 'PATH': '/apps/{app_id}/envs'},
         'ENVS_POST': {'METHOD': 'POST', 'PATH': '/apps/{app_id}/envs'},
         'ENVS_DELETE': {'METHOD': 'DELETE', 'PATH': '/apps/{app_id}/envs'},
+        'CREATE_DATABASE': {'METHOD': 'POST', 'PATH': '/databases'},
+        'GET_DATABASE_INFO': {'METHOD': 'GET', 'PATH': '/databases/{database_id}'},
+        'START_DATABASE': {'METHOD': 'POST', 'PATH': '/databases/{database_id}/start'},
+        'STOP_DATABASE': {'METHOD': 'POST', 'PATH': '/databases/{database_id}/stop'},
+        'EDIT_DATABASE': {'METHOD': 'PATCH', 'PATH': '/databases/{database_id}'},
+        'DELETE_DATABASE': {'METHOD': 'DELETE', 'PATH': '/databases/{database_id}'},
+        'ALL_DATABASES_STATUS': {'METHOD': 'GET', 'PATH': '/databases/status'},
+        'DATABASE_STATUS': {'METHOD': 'GET', 'PATH': '/databases/{database_id}/status'},
+        'GET_DATABASE_CERTIFICATE': {'METHOD': 'GET', 'PATH': '/databases/{database_id}/credentials/certificate'},
+        'RESET_DATABASE_CREDENTIALS': {'METHOD': 'POST', 'PATH': '/databases/{database_id}/credentials/reset'}
+    
     }
 
     def __init__(self, name: str) -> None:
@@ -315,6 +334,106 @@ class Endpoint:
         /apps/{app_id}/envs DELETE endpoint.
         """
         return cls('ENVS_DELETE')
+    
+    @classmethod
+    def restore_applications_snapshot(cls) -> Endpoint: 
+        """
+        Returns an Endpoint object that represents the
+        /apps/{app_id}/snapshots/restore endpoint.
+        """
+        return cls('RESTORE_APPLICATIONS_SNAPSHOT')
+    
+    @classmethod
+    def restore_database_snapshot(cls) -> Endpoint:
+        """
+        Returns an Endpoint object that represents the
+        /databases/{database_id}/snapshots/restore endpoint.
+        """
+        return cls('RESTORE_DATABASE_SNAPSHOT')
+    
+    @classmethod
+    def create_database(cls) -> Endpoint:
+        """
+        Returns an Endpoint object that represents the
+        /databases endpoint.
+        """
+        return cls('CREATE_DATABASE')
+    
+    @classmethod
+    def get_database_info(cls) -> Endpoint:
+        """
+        Returns an Endpoint object that represents the
+        /databases/{database_id} endpoint.
+        """
+        return cls('GET_DATABASE_INFO')
+    
+    @classmethod
+    def start_database(cls) -> Endpoint:
+        """
+        Returns an Endpoint object that represents the
+        /databases/{database_id}/start endpoint.
+        """
+        return cls('START_DATABASE')
+    
+
+    @classmethod
+    def stop_database(cls) -> Endpoint:
+        """
+        Returns an Endpoint object that represents the
+        /databases/{database_id}/stop endpoint.
+        """
+        return cls('STOP_DATABASE')
+    
+    @classmethod
+    def edit_database(cls) -> Endpoint: 
+        """
+        Returns an Endpoint object that represents the
+        /databases/{database_id} endpoint.
+        """
+        return cls('EDIT_DATABASE')
+    
+    @classmethod
+    def delete_database(cls) -> Endpoint:
+        """
+        Returns an Endpoint object that represents the
+        /databases/{database_id} endpoint.
+        """
+        return cls('DELETE_DATABASE')
+
+    @classmethod
+    def all_databases_status(cls) -> Endpoint:  
+        """
+        Returns an Endpoint object that represents the
+        /databases/status endpoint.
+        """
+        return cls('ALL_DATABASES_STATUS')
+
+    @classmethod
+    def database_status(cls):
+        """
+        Returns an Endpoint object that represents the
+        /databases/{database_id}/status endpoint.
+        """
+
+        return cls('DATABASE_STATUS')
+    
+    @classmethod
+    def get_database_certificate(cls):
+        """
+        Returns an Endpoint object that represents the
+        /databases/{database_id}/credentials/certificate endpoint.
+        """
+
+        return cls('GET_DATABASE_CERTIFICATE')
+    
+    @classmethod
+    def reset_database_credentials(cls):
+        """
+        Returns an Endpoint object that represents the
+        /databases/{database_id}/credentials/reset endpoint.
+        """
+
+        return cls('RESET_DATABASE_CREDENTIALS')
 
 
 # pylint: disable=too-few-public-methods

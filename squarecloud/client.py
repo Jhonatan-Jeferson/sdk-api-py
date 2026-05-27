@@ -23,6 +23,9 @@ from .data import (
     StatusData,
     UploadData,
     UserData,
+    Database,
+    DatabaseInfo,
+    Certificate
 )
 from .errors import ApplicationNotFound, InvalidFile, SquareException
 from .file import File
@@ -325,6 +328,33 @@ class Client(RequestListenerManager):
         response: Response = await self._http.snapshot(app_id)
         payload: dict[str, Any] = response.response
         return Snapshot(**payload)
+
+    @validate
+    async def restore_snapshot(self, application_type: Literal["app", "database"], app_id: str, snapshot_id:str, version_id:str, **_kwargs) -> Response:
+        """
+        The restore_snapshot method is used to restore a snapshot of an application.
+
+        :param application_type: Specify the type of the application, it can be "app" or "database"
+        :param app_id: Specify the application id
+        :param snapshot_id: Specify the snapshot id
+        :param version_id: Specify the snapshot version id
+
+        :return: A Response object
+        :rtype: Response
+
+        :raises NotFoundError: Raised when the request status code is 404
+        :raises BadRequestError: Raised when the request status code is 400
+        :raises AuthenticationFailure: Raised when the request status
+                code is 401
+        :raises TooManyRequestsError: Raised when the request status
+                code is 429
+        """
+
+        if application_type not in ["app", "database"]:
+            raise ValueError("application_type must be 'app' or 'database'")
+        
+
+        return await self._http.restore_snapshot(app_type=application_type, app_id=app_id, snapshot_id=snapshot_id, version_id=version_id)
 
     @validate
     @_notify_listener(Endpoint.delete_app())
@@ -872,3 +902,148 @@ class Client(RequestListenerManager):
         """
         response: Response = await self._http.overwrite_environment_variables(app_id, {})
         return response.response
+    
+    @_notify_listener(Endpoint.create_database())
+    async def create_database(
+            self,
+            name: str,
+            memory: int,
+            type: Literal["redis", "mongo", "mysql", "postgres"],
+            *,
+            version: str | None = None,
+        ) -> Database:
+        """
+        Create a new database.
+
+        :param name: Name of the database to be created.
+        :param memory: Memory in MB allocated to the database.
+        :param type: Database type ("redis", "mongo", "mysql", "postgres").
+        :param version: Database version.
+        :return: Database instance representing the created database.
+        """
+        versions = {
+            "redis": "7.4.5",
+            "mongo": "8.0.11",
+            "postgres": "17.6",
+            "mysql": "9.5",
+        }
+        version = version if version else versions.get(type)
+
+        response: Response = await self._http.create_database(name=name, memory=memory, type=type, version=version)
+
+        response.response.update({"certificate": Certificate(response.response['certificate'])})
+
+        return Database(**response.response)
+    
+    @_notify_listener(Endpoint.get_database_info())
+    async def get_database_info(self, database_id: str) -> DatabaseInfo:
+        """
+        Retrieve information about a specific database.
+
+        :param database_id: ID of the database to retrieve information for.
+        :return: DatabaseInfo instance containing details about the specified database.
+        """
+        response: Response = await self._http.get_database_information(database_id)
+        return DatabaseInfo(**response.response)
+
+    @_notify_listener(Endpoint.start_database())
+    async def start_database(self, database_id: str) -> Response:
+        """
+        Start a specific database.
+
+        :param database_id: ID of the database to be started.
+        :return: Response object containing the result of the start operation.
+        """
+        return await self._http.start_database(database_id)
+
+    @_notify_listener(Endpoint.stop_database())
+    async def stop_database(self, database_id: str) -> Response:
+        """
+        Stop a specific database.
+
+        :param database_id: ID of the database to be stopped.
+        :return: Response object containing the result of the stop operation.
+        """
+        return await self._http.stop_database(database_id)
+
+    @_notify_listener(Endpoint.edit_database())
+    async def edit_database(self, database_id: str, name: str | None = None, memory: int | None = None) -> Response:
+        """
+        Edit the configuration of a specific database.
+
+        :param database_id: ID of the database to be edited.
+        :param name: New name for the database (optional).
+        :param memory: New memory allocation in MB for the database (optional).
+        :return: Response object containing the result of the edit operation.
+        """
+        return await self._http.edit_database(database_id, name=name, memory=memory)
+
+    @_notify_listener(Endpoint.delete_database())
+    async def delete_database(self, database_id: str) -> Response:
+        """
+        Delete a specific database.
+
+        :param database_id: ID of the database to be deleted.
+        :return: Response object containing the result of the delete operation.
+        """
+        return await self._http.delete_database(database_id)
+    
+    @_notify_listener(Endpoint.all_databases_status())
+    async def all_databases_status(self) -> list[ResumedStatus]:
+        """
+        Retrieve the status of all databases.
+        This method fetches the status of all databases
+        and returns a list of `ResumedStatus` objects
+        """
+
+        response = await self._http.all_databases_status()
+        return [ResumedStatus(**status) for status in response.response]
+
+    @_notify_listener(Endpoint.database_status())
+    async def get_database_status(self, database_id: str) -> StatusData:
+        """
+        Obtains the status of a specific database and returns a StatusData object.
+
+        :param database_id: ID of the database
+        :return: A StatusData object containing the status of the specified database.   
+        """
+
+        response = await self._http.get_database_status(database_id)
+        return StatusData(**response.response)
+
+    @_notify_listener(Endpoint.get_database_certificate())
+    async def get_database_certificate(self, database_id: str) -> Certificate:
+        """
+        Retrieve the database TLS certificate.
+
+        :param database_id: Database identifier.
+        :return: Certificate instance.
+        """
+
+        response: Response = await self._http.get_database_certificate(database_id)
+
+        return Certificate(response.response['certificate'])
+
+    @_notify_listener(Endpoint.reset_database_credentials())
+    async def reset_database_password(self, database_id: str) -> str:
+        """
+        Reset database password credentials.
+
+        :param database_id: Database identifier.
+        :return: Newly generated password.
+        """
+
+        response: Response = await self._http.reset_database_credentials(database_id, "password")
+
+        return response.response["password"]
+    
+    @_notify_listener(Endpoint.reset_database_credentials())
+    async def reset_database_certificate(self, database_id: str) -> Response:
+        """
+        Regenerate the database certificate.
+
+        :param database_id: Database identifier.
+        :return: API response.
+        """
+        response: Response = await self._http.reset_database_credentials(database_id, "certificate")
+        return response

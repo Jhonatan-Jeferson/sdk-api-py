@@ -8,6 +8,8 @@ from typing import Any, Literal
 from ._internal.constants import USING_PYDANTIC
 from .http import HTTPClient
 
+import base64
+
 if USING_PYDANTIC:
     from pydantic.dataclasses import dataclass
 else:
@@ -85,8 +87,8 @@ class StatusData(BaseDataClass):
 class ResumedStatus(BaseDataClass):
     id: str
     running: bool
-    cpu: str
-    ram: str
+    cpu: str = "0.00%"
+    ram: str = "0.00MB"
 
 
 class AppData(BaseDataClass):
@@ -206,6 +208,10 @@ class SnapshotInfo(BaseDataClass):
     size: int
     modified: datetime
     key: str
+
+    @property
+    def version_id(self) -> str:
+        return self.key.split("versionId=")[-1]
 
 
 class Snapshot:
@@ -349,3 +355,81 @@ class DNSRecord(BaseDataClass):
     name: str
     value: str
     status: str
+
+
+class BaseDatabaseData(BaseDataClass):
+    id: str
+    name: str
+    type: str
+    cluster: str
+
+class Certificate(BaseDataClass):
+    base64_certificate: str
+    
+    def _extract_block(self, block: str) -> bytes:
+        decoded_certificate = base64.b64decode(self.base64_certificate)
+
+        begin = f"-----BEGIN {block}-----".encode()
+        end = f"-----END {block}-----" .encode()
+        
+        start = decoded_certificate.find(begin)
+        if start == -1:
+            raise ValueError(f"{block} not found")
+            
+        final = decoded_certificate.find(end,  start)
+        if final == -1:
+            raise ValueError(f"{block} not found")
+
+        final += len(end)
+        return decoded_certificate[start:final]
+
+    def _save_pem(self, dir: str, filename: str):
+        with open(os.path.join(dir, filename + '.pem'), "wb") as file:
+            file.write(base64.b64decode(self.base64_certificate))
+
+    def _save_cert(self, dir: str, filename: str): 
+        with open(os.path.join(dir, filename + '.crt'), 'wb') as file:
+            file.write(self._extract_block("CERTIFICATE"))
+            
+    def _save_key(self, dir: str, filename: str):
+        with open(os.path.join(dir, filename + '.key'), 'wb') as file:
+            file.write(self._extract_block("PRIVATE KEY"))
+
+    def _get_backend(self, ext: str):
+        try:
+            return getattr(self, f"_save_{ext}")
+        except AttributeError:
+            raise ValueError("Invalid certificate format")
+
+    def save(
+        self,
+        *,
+        dir: str = "certs",
+        filename: str = "certificate",
+        export_to: Literal['pem', 'cert', 'key'] = "pem"
+    ) -> None:
+        backend = self._get_backend(export_to)
+
+        os.makedirs(dir, exist_ok=True)
+        backend(dir, filename)
+
+
+class Database(BaseDatabaseData):
+    memory: int
+    cpu:int
+    password: str
+    certificate: Certificate
+    connection_url: str
+
+
+
+class DatabaseInfo(BaseDatabaseData):
+    owner: str
+    cluster :str
+    port: int
+    ram: int
+    created_at: str
+
+    @property
+    def created_at_datetime(self) -> datetime:
+        return datetime.fromisoformat(self.created_at)
