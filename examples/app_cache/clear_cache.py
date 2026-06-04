@@ -14,13 +14,13 @@ async def example() -> None:
 
     print(app.cache.status)  # StatusData(...)
     print(app.cache.logs)  # LogsData(...)
-    print(app.cache.backup)  # BackupData(...)
+    print(app.cache.snapshot)  # SnapshotData(...)
 
     app.cache.clear()  # Clear cache
 
     print(app.cache.status)  # None
     print(app.cache.logs)  # None
-    print(app.cache.backup)  # None
+    print(app.cache.snapshot)  # None
 
 
 asyncio.run(example())
