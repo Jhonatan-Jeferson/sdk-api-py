@@ -1049,11 +1049,25 @@ class Client(RequestListenerManager):
         return response
 
     async def create_workspace(self, name: str) -> Workspace:
+        """Create a new workspace.
+
+        :param name: Name of the workspace to create.
+        :type name: str
+        :return: Workspace object containing the created workspace data.
+        :rtype: Workspace
+        """
         create_workspace: Response = await self._http.create_workspace(name)
         get_workspace: Response = await self._http.fetch_workspace(create_workspace.response["id"])
         return Workspace(**get_workspace.response)
 
     async def get_workspace(self, workspace_id: str) -> Workspace:
+        """Retrieve a workspace by its identifier.
+
+        :param workspace_id: ID of the workspace to fetch.
+        :type workspace_id: str
+        :return: Workspace object containing workspace details.
+        :rtype: Workspace
+        """
         get_workspace: Response = await self._http.fetch_workspace(workspace_id)
         get_workspace.response["applications"] = list(
             map(lambda app: app | {"id": f'{app["id"]}-{get_workspace.response["id"]}'}, get_workspace.response["applications"])
@@ -1061,12 +1075,31 @@ class Client(RequestListenerManager):
         return Workspace(**get_workspace.response)
 
     async def delete_workspace(self, workspace_id: str) -> Response:
+        """Delete a workspace by its identifier.
+
+        :param workspace_id: ID of the workspace to delete.
+        :type workspace_id: str
+        :return: Response object returned by the API.
+        :rtype: Response
+        """
         return await self._http.delete_workspace(workspace_id)
 
     async def leave_workspace(self, workspace_id: str) -> Response:
+        """Leave a workspace.
+
+        :param workspace_id: ID of the workspace to leave.
+        :type workspace_id: str
+        :return: Response object returned by the API.
+        :rtype: Response
+        """
         return await self._http.leave_workspace(workspace_id)
 
     async def all_workspaces(self) -> list[Workspace]:
+        """Retrieve all workspaces available to the current user.
+
+        :return: List of Workspace objects representing all accessible workspaces.
+        :rtype: list[Workspace]
+        """
         response: Response = await self._http.fetch_all_workspaces()
         for workspace in response.response:
             workspace["applications"] = list(
@@ -1077,22 +1110,76 @@ class Client(RequestListenerManager):
     async def add_member_to_workspace(
         self, workspace_id: str, invite_code: str, permissions: Literal["admin", "maintain", "manager", "view"]
         ) -> Response:
+        """Add a member to a workspace using an invite code.
+
+        :param workspace_id: ID of the workspace.
+        :type workspace_id: str
+        :param invite_code: Invite code used to join the workspace.
+        :type invite_code: str
+        :param permissions: Permission level for the added member.
+        :type permissions: Literal["admin", "maintain", "manager", "view"]
+        :return: Response object returned by the API.
+        :rtype: Response
+        """
         return await self._http.add_member_to_workspace(workspace_id, invite_code, permissions)
 
     async def remove_member_from_workspace(self, workspace_id: str, user_id: str) -> Response:
+        """Remove a member from a workspace.
+
+        :param workspace_id: ID of the workspace.
+        :type workspace_id: str
+        :param user_id: ID of the member to remove.
+        :type user_id: str
+        :return: Response object returned by the API.
+        :rtype: Response
+        """
         return await self._http.remove_member_from_workspace(workspace_id, user_id)
 
     async def add_app_to_workspace(self, workspace_id: str, app_id: str) -> Response:
+        """Add an application to a workspace.
+
+        :param workspace_id: ID of the workspace.
+        :type workspace_id: str
+        :param app_id: ID of the application to add.
+        :type app_id: str
+        :return: Response object returned by the API.
+        :rtype: Response
+        """
         return await self._http.add_app_to_workspace(workspace_id, app_id)
 
     async def remove_app_from_workspace(self, workspace_id: str, app_id: str) -> Response:
+        """Remove an application from a workspace.
+
+        :param workspace_id: ID of the workspace.
+        :type workspace_id: str
+        :param app_id: ID of the application to remove.
+        :type app_id: str
+        :return: Response object returned by the API.
+        :rtype: Response
+        """
         return await self._http.remove_app_from_workspace(workspace_id, app_id)
 
     async def modify_member_permissions(
         self, workspace_id: str, user_id: str, permissions: Literal["admin", "maintain", "manager", "view"]
     ) -> Response:
+        """Change a workspace member's permissions.
+
+        :param workspace_id: ID of the workspace.
+        :type workspace_id: str
+        :param user_id: ID of the member whose permissions will be changed.
+        :type user_id: str
+        :param permissions: New permission level for the member.
+        :type permissions: Literal["admin", "maintain", "manager", "view"]
+        :return: Response object returned by the API.
+        :rtype: Response
+        """
         return await self._http.change_workspace_member_permission(workspace_id, user_id, permissions)
 
     async def get_invite_code(self) -> str:
+        """Retrieve the workspace invite code for the current user.
+
+        :return: Invite code string.
+        :rtype: str
+        """
         response: Response = await self._http.get_workspace_member_code()
         return cast(str, response.response.get("code", ""))
