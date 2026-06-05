@@ -2,12 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .._internal.constants import USING_PYDANTIC
-
-if USING_PYDANTIC:
-    from pydantic.dataclasses import dataclass
-else:
-    from dataclasses import dataclass
+from dataclasses import dataclass
 
 
 class DataClasMeta(type):
