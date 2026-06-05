@@ -350,7 +350,7 @@ class HTTPClient:
 
     async def snapshot(self, app_id: str) -> Response:
         """
-        Backup a hosted application
+        Do a Snapshot of a hosted application
 
         :param app_id: The application id
         :return: A Response object
@@ -684,7 +684,7 @@ class HTTPClient:
 
     async def get_all_app_snapshots(self, app_id: str) -> Response:
         """
-        Returns a list of all backups of the specified application
+        Returns a list of all Snapshots of the specified application
 
         :return: A Response object
         :rtype: Response

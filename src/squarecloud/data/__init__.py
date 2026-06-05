@@ -2,6 +2,8 @@ from .app import AppData
 from .base import BaseDataClass, DataClasMeta
 from .base_database import BaseDatabaseData
 from .certificate import Certificate
+from .database import Database
+from .database_info import DatabaseInfo
 from .deploy_data import DeployData
 from .dns_record import DNSRecord
 from .domain_analytics import DomainAnalytics
@@ -14,9 +16,7 @@ from .snapshot_info import SnapshotInfo
 from .status import ResumedStatus, StatusData
 from .upload import UploadData
 from .user import UserData
-from .database import Database
-from .database_info import DatabaseInfo
-from .workspace import Workspace, Member
+from .workspace import Member, Workspace
 
 __all__ = [
     'AppData',

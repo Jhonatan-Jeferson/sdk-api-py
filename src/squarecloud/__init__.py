@@ -17,7 +17,7 @@ from .data import (
     StatusData,
     UploadData,
     UserData,
-    Workspace
+    Workspace,
 )
 from .file import File
 from .http.endpoints import Endpoint

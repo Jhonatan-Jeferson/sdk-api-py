@@ -1,5 +1,6 @@
 from typing import Any, Literal
 
+
 class ConfigFile:
     """
     This object represents a configuration file.

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from .base import BaseDataClass
-
 from typing import TYPE_CHECKING
+
+from .base import BaseDataClass
 
 if TYPE_CHECKING:
     from .. import Application

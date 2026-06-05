@@ -11,6 +11,9 @@ from typing_extensions import deprecated
 from .app import Application
 from .data import (
     AppData,
+    Certificate,
+    Database,
+    DatabaseInfo,
     DeployData,
     DNSRecord,
     DomainAnalytics,
@@ -22,10 +25,7 @@ from .data import (
     StatusData,
     UploadData,
     UserData,
-    Database,
-    DatabaseInfo,
-    Certificate,
-    Workspace
+    Workspace,
 )
 from .errors import ApplicationNotFound, InvalidFile, SquareException
 from .file import File
@@ -282,31 +282,7 @@ class Client(RequestListenerManager):
         :raises TooManyRequestsError: Raised when the request status
                 code is 429
         """
-        return await self._http.restart_application(app_id)
-
-    
-    @_notify_listener(Endpoint.snapshot())
-    @deprecated("this method will be removed in future versions, use the 'snapshot' method instead")
-    async def backup(self, app_id: str, **_kwargs) -> Snapshot:
-        """
-        The backup method is used to backup an application.
-
-        :param app_id: Specify the application id
-        :param _kwargs: Keyword arguments
-        :return: A Snapshot object
-        :rtype: Snapshot
-
-        :raises NotFoundError: Raised when the request status code is 404
-        :raises BadRequestError: Raised when the request status code is 400
-        :raises AuthenticationFailure: Raised when the request status
-                code is 401
-        :raises TooManyRequestsError: Raised when the request status
-                code is 429
-        """
-        response: Response = await self._http.snapshot(app_id)
-        payload: dict[str, Any] = response.response
-        return Snapshot(**payload)
-    
+        return await self._http.restart_application(app_id)    
     
     @_notify_listener(Endpoint.snapshot())
     async def snapshot(self, app_id: str, **_kwargs) -> Snapshot:
@@ -730,19 +706,7 @@ class Client(RequestListenerManager):
         response: Response = await self._http.domain_analytics(
             app_id=app_id,
         )
-        return DomainAnalytics(**response.response)
-
-    
-    @_notify_listener(Endpoint.all_snapshots())
-    @deprecated("this method will be removed in future versions, use the 'all_app_snapshots' method instead")
-    async def all_app_backups(
-        self, app_id: str, **_kwargs
-    ) -> list[SnapshotInfo]:
-        response: Response = await self._http.get_all_app_snapshots(
-            app_id=app_id
-        )
-        return [SnapshotInfo(**backup_data) for backup_data in response.response]
-    
+        return DomainAnalytics(**response.response)    
     
     @_notify_listener(Endpoint.all_snapshots())
     async def all_app_snapshots(

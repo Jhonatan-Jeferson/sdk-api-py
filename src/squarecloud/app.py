@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar
 from typing_extensions import deprecated
 
 from squarecloud import errors
+
 from .data import (
     AppData,
     DeployData,
@@ -39,7 +40,6 @@ class AppCache:
     __slots__ = (
         '_status',
         '_logs',
-        '_backup',
         '_app_data',
         '_snapshot'
     )
@@ -55,7 +55,6 @@ class AppCache:
         """
         self._status: StatusData | None = None
         self._logs: LogsData | None = None
-        self._backup: Snapshot | None = None
         self._snapshot: Snapshot | None = None
         self._app_data: AppData | None = None
 
@@ -82,18 +81,6 @@ class AppCache:
         return self._logs
 
     @property
-    @deprecated("this property will be removed in future versions, use the 'snapshot' property instead")
-    def backup(self) -> Snapshot:
-        """
-        The backup method is a property that returns the cached Backup of
-        the application.
-
-        :return: The value of the _backup attribute
-        :rtype: Backup
-        """
-        return self._backup
-
-    @property
     def snapshot(self) -> Snapshot:
         """
         The snapshot method is a property that returns the cached Snapshot of
@@ -117,7 +104,7 @@ class AppCache:
 
     def clear(self) -> None:
         """
-        The clear method is used to clear the status, logs, backup and data
+        The clear method is used to clear the status, logs, snapshot and data
         variables.
 
         :param self: Refer to the class instance
@@ -125,7 +112,6 @@ class AppCache:
         """
         self._status = None
         self._logs = None
-        self._backup = None
         self._app_data = None
         self._snapshot = None
 
@@ -134,7 +120,7 @@ class AppCache:
         The update method is used to update the data of a given instance.
         It takes in an arbitrary number of arguments, and updates the
         corresponding data if it is one of the following types:
-        StatusData, LogsData, Backup or AppData.
+        StatusData, LogsData, Snapshot or AppData.
         If any other type is provided as an argument to this function,
         a SquareException will be raised.
 
@@ -147,7 +133,6 @@ class AppCache:
             elif isinstance(arg, LogsData):
                 self._logs = arg
             elif isinstance(arg, Snapshot):
-                self._backup = arg
                 self._snapshot = arg
             elif isinstance(arg, AppData):
                 self._app_data = arg
@@ -491,20 +476,6 @@ class Application(CaptureListenerManager):
 
     @_update_cache
     @_notify_listener(Endpoint.snapshot())
-    @deprecated("this method will be removed in future versions, use the 'snapshot' method instead")
-    async def backup(self, *_args, **_kwargs) -> Snapshot:
-        """
-        The backup function is used to create a backup of the application.
-
-        :param self: Refer to the class instance
-        :return: A Backup object
-        :rtype: Backup
-        """
-        backup: Snapshot = await self.client.snapshot(self.id)
-        return backup
-
-    @_update_cache
-    @_notify_listener(Endpoint.snapshot())
     async def snapshot(self, *_args, **_kwargs) -> Snapshot:
         """
         The Snapshot function is used to create a snapshot of the application.
@@ -710,11 +681,6 @@ class Application(CaptureListenerManager):
             self.id, custom_domain, avoid_listener=True
         )
         return response
-
-    @deprecated("this method will be removed in future versions, use the 'all_snapshots' method instead")
-    async def all_backups(self) -> list[SnapshotInfo]:
-        backups: list[SnapshotInfo] = await self.client.all_app_snapshots(self.id)
-        return backups
 
     async def all_snapshots(self) -> list[SnapshotInfo]:
         """
