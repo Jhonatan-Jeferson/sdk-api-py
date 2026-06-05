@@ -17,6 +17,7 @@ from .data import (
     StatusData,
     UploadData,
     UserData,
+    Workspace
 )
 from .file import File
 from .http.endpoints import Endpoint
@@ -41,6 +42,7 @@ __all__ = [
     'StatusData',
     'UploadData',
     'UserData',
+    'Workspace',
     'errors',
     'utils',
 ]

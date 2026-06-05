@@ -992,3 +992,131 @@ class HTTPClient:
         route: Router = Router(Endpoint.reset_database_credentials(), database_id=database_id)
 
         return await self.request(route, json={"reset": reset})
+
+    async def create_workspace(self, name: str) -> Response:
+        """
+        Create a new workspace.
+
+        :param name: Workspace name.
+        :return: A Response object.
+        """
+        route: Router = Router(Endpoint.create_workspace())
+        response: Response = await self.request(route, json={"name": name})
+        return response
+
+    async def fetch_workspace(self, workspace_id: str) -> Response:
+        """
+        Fetch a single workspace by ID.
+
+        :param workspace_id: Workspace identifier.
+        :return: A Response object.
+        """
+        route: Router = Router(Endpoint.get_workspace(), workspace_id=workspace_id)
+        response: Response = await self.request(route)
+        return response
+
+    async def delete_workspace(self, workspace_id: str) -> Response:
+        """
+        Delete a workspace owned by the authenticated user.
+
+        :param workspace_id: Workspace identifier.
+        :return: A Response object.
+        """
+        route: Router = Router(Endpoint.delete_workspace())
+        response: Response = await self.request(route, json={"workspaceId": workspace_id})
+        return response
+
+    async def fetch_all_workspaces(self) -> Response:
+        """
+        List workspaces owned by or shared with the authenticated user.
+
+        :return: A Response object.
+        """
+        route: Router = Router(Endpoint.all_workspaces())
+        response: Response = await self.request(route)
+        return response
+
+    async def add_app_to_workspace(self, workspace_id: str, app_id: str) -> Response:
+        """
+        Share an application into a workspace.
+
+        :param workspace_id: Workspace identifier.
+        :param app_id: Application identifier.
+        :return: A Response object.
+        """
+        route: Router = Router(Endpoint.add_app_to_workspace())
+        response: Response = await self.request(route, json={"workspaceId": workspace_id, "appId": app_id})
+        return response
+
+    async def remove_app_from_workspace(self, workspace_id: str, app_id: str) -> Response:
+        """
+        Remove a shared application from a workspace.
+
+        :param workspace_id: Workspace identifier.
+        :param app_id: Application identifier.
+        :return: A Response object.
+        """
+        route: Router = Router(Endpoint.remove_app_from_workspace())
+        response: Response = await self.request(route, json={"workspaceId": workspace_id, "appId": app_id})
+        return response
+
+    async def add_member_to_workspace(self, workspace_id: str, invite_code: str, group: str) -> Response:
+        """
+        Add a member to a workspace using an invite code.
+
+        :param workspace_id: Workspace identifier.
+        :param invite_code: Invite code issued by the workspace owner.
+        :param group: Permission group for the new member.
+        :return: A Response object.
+        """
+        route: Router = Router(Endpoint.add_member_to_workspace())
+        response: Response = await self.request(
+            route, json={"workspaceId": workspace_id, "code": invite_code, "group": group}
+        )
+        return response
+
+    async def remove_member_from_workspace(self, workspace_id: str, member_id: str) -> Response:
+        """
+        Remove a member from a workspace.
+
+        :param workspace_id: Workspace identifier.
+        :param member_id: Member identifier.
+        :return: A Response object.
+        """
+        route: Router = Router(Endpoint.remove_member_from_workspace())
+        response: Response = await self.request(route, json={"workspaceId": workspace_id, "memberId": member_id})
+        return response
+
+    async def change_workspace_member_permission(self, workspace_id: str, member_id: str, group: str) -> Response:
+        """
+        Change the permission group of a workspace member.
+
+        :param workspace_id: Workspace identifier.
+        :param member_id: Member identifier.
+        :param group: New permission group for the member.
+        :return: A Response object.
+        """
+        route: Router = Router(Endpoint.modify_member_permissions())
+        response: Response = await self.request(route, json={"workspaceId": workspace_id, "memberId": member_id, "group": group})
+        return response
+
+    async def leave_workspace(self, workspace_id: str) -> Response:
+        """
+        Leave a workspace the authenticated user belongs to.
+
+        :param workspace_id: Workspace identifier.
+        :return: A Response object.
+        """
+        route: Router = Router(Endpoint.leave_workspace())
+        response: Response = await self.request(route, json={"workspaceId": workspace_id})
+        return response
+
+    async def get_workspace_member_code(self) -> Response:
+        """
+        Generate an invite code for the authenticated user.
+
+        :return: A Response object.
+        """
+        route: Router = Router(Endpoint.workspaces_members_code())
+        response: Response = await self.request(route)
+        return response

@@ -77,8 +77,18 @@ class Endpoint:
         'ALL_DATABASES_STATUS': {'METHOD': 'GET', 'PATH': '/databases/status'},
         'DATABASE_STATUS': {'METHOD': 'GET', 'PATH': '/databases/{database_id}/status'},
         'GET_DATABASE_CERTIFICATE': {'METHOD': 'GET', 'PATH': '/databases/{database_id}/credentials/certificate'},
-        'RESET_DATABASE_CREDENTIALS': {'METHOD': 'POST', 'PATH': '/databases/{database_id}/credentials/reset'}
-    
+        'RESET_DATABASE_CREDENTIALS': {'METHOD': 'POST', 'PATH': '/databases/{database_id}/credentials/reset'},
+        'GET_WORKSPACES': {'METHOD': 'GET', 'PATH': '/workspaces'},
+        'CREATE_WORKSPACE': {'METHOD': 'POST', 'PATH': '/workspaces'},
+        'DELETE_WORKSPACE': {'METHOD': 'DELETE', 'PATH': '/workspaces'},
+        'ADD_APPLICATION_TO_WORKSPACE': {'METHOD': 'POST', 'PATH': '/workspaces/applications'},
+        'REMOVE_APPLICATION_FROM_WORKSPACE': {'METHOD': 'DELETE', 'PATH': '/workspaces/applications'},
+        'LEAVE_WORKSPACE': {'METHOD': 'DELETE', 'PATH': '/workspaces/leave'},
+        'ADD_MEMBER_TO_WORKSPACE': {'METHOD': 'POST', 'PATH': '/workspaces/members'},
+        'UPDATE_MEMBER_IN_WORKSPACE': {'METHOD': 'PATCH', 'PATH': '/workspaces/members'},
+        'REMOVE_MEMBER_FROM_WORKSPACE': {'METHOD': 'DELETE', 'PATH': '/workspaces/members'},
+        'GET_WORKSPACE_MEMBERS_CODE': {'METHOD': 'GET', 'PATH': '/workspaces/members/code'},
+        'GET_WORKSPACE': {'METHOD': 'GET', 'PATH': '/workspaces/{workspace_id}'}
     }
 
     def __init__(self, name: str) -> None:
@@ -435,12 +445,109 @@ class Endpoint:
 
         return cls('RESET_DATABASE_CREDENTIALS')
 
+    @classmethod
+    def all_workspaces(cls):
+        """
+        Returns an Endpoint object that represents the
+        /workspaces endpoint with GET.
+        """
+
+        return cls('GET_WORKSPACES')
+
+    @classmethod
+    def create_workspace(cls):
+        """
+        Returns an Endpoint object that represents the
+        /workspaces endpoint with POST.
+        """
+
+        return cls('CREATE_WORKSPACE')
+
+    @classmethod
+    def delete_workspace(cls):
+        """
+        Returns an Endpoint object that represents the
+        /workspaces endpoint with DELETE.
+        """
+
+        return cls('DELETE_WORKSPACE')
+
+    @classmethod
+    def add_app_to_workspace(cls):
+        """
+        Returns an Endpoint object that represents the
+        /workspaces/applications endpoint with POST.
+        """
+
+        return cls('ADD_APPLICATION_TO_WORKSPACE')
+
+    @classmethod
+    def remove_app_from_workspace(cls):
+        """
+        Returns an Endpoint object that represents the
+        /workspaces/applications endpoint with DELETE.
+        """
+
+        return cls('REMOVE_APPLICATION_FROM_WORKSPACE')
+
+    @classmethod
+    def leave_workspace(cls):
+        """
+        Returns an Endpoint object that represents the
+        /workspaces/leave endpoint with DELETE.
+        """
+
+        return cls('LEAVE_WORKSPACE')
+
+    @classmethod
+    def add_member_to_workspace(cls):
+        """
+        Returns an Endpoint object that represents the
+        /workspaces/members endpoint with POST.
+        """
+
+        return cls('ADD_MEMBER_TO_WORKSPACE')
+
+    @classmethod
+    def modify_member_permissions(cls):
+        """
+        Returns an Endpoint object that represents the
+        /workspaces/members endpoint with PATCH.
+        """
+
+        return cls('UPDATE_MEMBER_IN_WORKSPACE')
+
+    @classmethod
+    def remove_member_from_workspace(cls):
+        """
+        Returns an Endpoint object that represents the
+        /workspaces/members endpoint with DELETE.
+        """
+
+        return cls('REMOVE_MEMBER_FROM_WORKSPACE')
+
+    @classmethod
+    def workspaces_members_code(cls):
+        """
+        Returns an Endpoint object that represents the
+        /workspaces/members/code endpoint with GET.
+        """
+
+        return cls('GET_WORKSPACE_MEMBERS_CODE')
+
+    @classmethod
+    def get_workspace(cls):
+        """
+        Returns an Endpoint object that represents the
+        /workspaces/{workspace_id} endpoint.
+        """
+
+        return cls('GET_WORKSPACE')
 
 # pylint: disable=too-few-public-methods
 class Router:
     """Represents a route"""
 
-    # BASE_V1: str = 'https://api.squarecloud.app/v1/public'
     BASE_V2: str = 'https://api.squarecloud.app/v2'
 
     # noinspection StrFormat

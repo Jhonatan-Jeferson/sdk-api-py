@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import wraps
 from io import BytesIO
-from typing import Any, Callable, Literal, ParamSpec, TypeVar
+from typing import Any, Callable, Literal, ParamSpec, TypeVar, cast
 
 from typing_extensions import deprecated
 
@@ -25,7 +25,8 @@ from .data import (
     UserData,
     Database,
     DatabaseInfo,
-    Certificate
+    Certificate,
+    Workspace
 )
 from .errors import ApplicationNotFound, InvalidFile, SquareException
 from .file import File
@@ -1047,3 +1048,52 @@ class Client(RequestListenerManager):
         """
         response: Response = await self._http.reset_database_credentials(database_id, "certificate")
         return response
+
+    async def create_workspace(self, name: str) -> Workspace:
+        create_workspace: Response = await self._http.create_workspace(name)
+        get_workspace: Response = await self._http.fetch_workspace(create_workspace.response["id"])
+        return Workspace(**get_workspace.response)
+
+    async def get_workspace(self, workspace_id: str) -> Workspace:
+        get_workspace: Response = await self._http.fetch_workspace(workspace_id)
+        get_workspace.response["applications"] = list(
+            map(lambda app: app | {"id": f'{app["id"]}-{get_workspace.response["id"]}'}, get_workspace.response["applications"])
+        )
+        return Workspace(**get_workspace.response)
+
+    async def delete_workspace(self, workspace_id: str) -> Response:
+        return await self._http.delete_workspace(workspace_id)
+
+    async def leave_workspace(self, workspace_id: str) -> Response:
+        return await self._http.leave_workspace(workspace_id)
+
+    async def all_workspaces(self) -> list[Workspace]:
+        response: Response = await self._http.fetch_all_workspaces()
+        for workspace in response.response:
+            workspace["applications"] = list(
+                map(lambda app: app | {"id": f'{app["id"]}-{workspace["id"]}'}, workspace["applications"])
+            )
+        return [Workspace(**workspace) for workspace in response.response]
+
+    async def add_member_to_workspace(
+        self, workspace_id: str, invite_code: str, permissions: Literal["admin", "maintain", "manager", "view"]
+        ) -> Response:
+        return await self._http.add_member_to_workspace(workspace_id, invite_code, permissions)
+
+    async def remove_member_from_workspace(self, workspace_id: str, user_id: str) -> Response:
+        return await self._http.remove_member_from_workspace(workspace_id, user_id)
+
+    async def add_app_to_workspace(self, workspace_id: str, app_id: str) -> Response:
+        return await self._http.add_app_to_workspace(workspace_id, app_id)
+
+    async def remove_app_from_workspace(self, workspace_id: str, app_id: str) -> Response:
+        return await self._http.remove_app_from_workspace(workspace_id, app_id)
+
+    async def modify_member_permissions(
+        self, workspace_id: str, user_id: str, permissions: Literal["admin", "maintain", "manager", "view"]
+    ) -> Response:
+        return await self._http.change_workspace_member_permission(workspace_id, user_id, permissions)
+
+    async def get_invite_code(self) -> str:
+        response: Response = await self._http.get_workspace_member_code()
+        return cast(str, response.response.get("code", ""))
