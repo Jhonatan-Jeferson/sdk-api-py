@@ -10,7 +10,7 @@ async def example() -> None:
 
     await app.status()
     await app.logs()
-    await app.backup()
+    await app.snapshot()
 
     print(app.cache.status)  # StatusData(...)
     print(app.cache.logs)  # LogsData(...)

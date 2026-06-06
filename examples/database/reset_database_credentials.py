@@ -2,7 +2,6 @@ import asyncio
 
 import squarecloud as square
 
-
 client = square.Client(api_key='your_api_key')
 
 
