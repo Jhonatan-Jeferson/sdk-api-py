@@ -1,6 +1,6 @@
 [project]
 name = "squarecloud-api"
-version = "3.8.1"
+version = "4.0.0"
 description = "SquareCloud API wrapper"
 authors = [
     {name = "Robert Nogueira",email = "robertlucasnogueira@gmail.com"}
@@ -9,7 +9,7 @@ repository = 'https://github.com/squarecloudofc/wrapper-api-py'
 documentation = 'https://docs.squarecloud.app/en/sdks/py/client'
 license = {text = "MIT License"}
 readme = "README.md"
-requires-python = ">=3.10,<3.15"
+requires-python = ">=3.13,<3.15"
 
 dependencies = [
     "aiohttp~=3.13.2",
